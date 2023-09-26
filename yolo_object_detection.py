@@ -18,29 +18,48 @@ def plot_cv_img(input_image):
     plt.savefig("DetectionOutput.jpg")
     plt.show()
 
+    
+    
 # load yolo
 net = cv.dnn.readNet("yolov3.weights",
                      "yolov3.cfg")
-clasees = []
+classes = []
 with open("coco.names", 'r') as f:
     classes = [line.strip() for line in f.readlines()]
 # print(classes)
+
+
 layer_name = net.getLayerNames()
 output_layer = [layer_name[i - 1] for i in net.getUnconnectedOutLayers()]
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
 # Load Image
-#img = cv.imread("room_ser.jpg")
 img = cv.imread("bermuda.jpg")
+print("Shape: ", img.shape)
+
+#Various mod options
+'''
+        new_img = cv.resize(
+            image,
+            (max_tuple[0], max_tuple[1]),
+            interpolation = cv2.INTER_AREA
+'''
+# Turn to grey scale
+#img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
+
 img = cv.resize(img, None, fx=0.4, fy=0.4)
 height, width, channel = img.shape
+print("Shape 2: ", img.shape)
+# for greyscale there is no channel
+# height, width = img.shape
 
 # Detect Objects
 blob = cv.dnn.blobFromImage(
     img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
 net.setInput(blob)
 outs = net.forward(output_layer)
-# print(outs)
+print(outs)
 
 # Showing Information on the screen
 class_ids = []
@@ -76,7 +95,7 @@ for i in range(len(boxes)):
     if i in indexes:
         x, y, w, h = boxes[i]
         label = str(classes[class_ids[i]])
-        print(label)
+        print("LABEL: ", label)
         color = colors[i]
         cv.rectangle(img, (x, y), (x + w, y + h), color, 2)
         cv.putText(img, label, (x, y + 30), font, 3, color, 3)
